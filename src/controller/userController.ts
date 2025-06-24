@@ -11,6 +11,7 @@ import {
 } from "../responseObject/successResponse";
 import userModel from "../models/userModel";
 import { generateToken } from "../helper/helper";
+import categoryModel from "../models/categoryModel";
 
 export const OTPSending = async (req: Request, res: Response) => {
   try {
@@ -83,6 +84,16 @@ export const verifyOTP = async (req: Request, res: Response) => {
     await user.save();
 
     return successResponse_ok_withToken(res, "OTP Verified", user, token);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const getAllCategory = async (req: Request, res: Response) => {
+  try {
+    let categories = await categoryModel.find();
+
+    return successResponse_ok(res, "All Category Fetched", categories);
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }

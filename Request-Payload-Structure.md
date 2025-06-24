@@ -21,7 +21,7 @@
 }
 ```
 
-## 2. Verify OTP
+## 3. Verify OTP
 - **Request Type:** POST
 - **URL:** https://food-delivery-app-059m.onrender.com/user/verify-otp
 - **Payload:**
@@ -31,3 +31,7 @@
     "otp":2334
 }
 ```
+
+## 4. Fetch All Categories
+- **Request Type:** GET
+- **URL:** https://food-delivery-app-059m.onrender.com/user/fetch-all-categories

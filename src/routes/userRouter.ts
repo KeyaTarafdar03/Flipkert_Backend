@@ -1,5 +1,5 @@
 import express from "express";
-import { OTPSending, resendOTP, verifyOTP } from "../controller/userController";
+import { getAllCategory, OTPSending, resendOTP, verifyOTP } from "../controller/userController";
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -9,5 +9,7 @@ router.get("/", (req, res) => {
 router.post("/otp-send", OTPSending);
 router.post("/resend-otp", resendOTP);
 router.post("/verify-otp", verifyOTP);
+
+router.get("/fetch-all-categories", getAllCategory);
 
 export default router;
