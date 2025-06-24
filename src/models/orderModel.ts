@@ -31,7 +31,7 @@ const orderSchema = new mongoose.Schema({
   orderStatus: {
     type: String,
     enum: Object.values(orderStatus),
-    default: orderStatus.pending,
+    default: orderStatus.placed,
   },
   createdAt: { type: Date },
   deliveredAt: { type: Date },
@@ -39,15 +39,5 @@ const orderSchema = new mongoose.Schema({
   deliveryBoy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   otp: { type: Number, require: true },
 });
-
-// function autoPopulate(this: any, next: () => void) {
-//   this.populate({
-//     path: "userId products.product deliveryBoy",
-//   });
-//   next();
-// }
-
-// orderSchema.pre("find", autoPopulate);
-// orderSchema.pre("findOne", autoPopulate);
 
 export default mongoose.model("Order", orderSchema);
