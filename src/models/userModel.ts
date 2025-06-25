@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
   email: String,
   phone: String,
   address: String,
-//   password: String,
   otp: Number,
   cart: [
     {
@@ -20,6 +19,13 @@ const userSchema = new mongoose.Schema({
     },
   ],
   order: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
+});
+
+userSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret.__v;
+    return ret;
+  },
 });
 
 export default mongoose.model("User", userSchema);

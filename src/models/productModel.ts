@@ -1,51 +1,28 @@
 import mongoose from "mongoose";
 
-enum color {
-  red,
-  yellow,
-  green,
-  blue,
-  white,
-}
-
-enum size {
-  XS,
-  S,
-  M,
-  L,
-  XL,
-  XXL,
-  four = 4,
-  five = 5,
-  six = 6,
-  seven = 7,
-  eight = 8,
-  nine = 9,
-}
-
 const productSchema = new mongoose.Schema({
   name: String,
   price: Number,
-  category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+  description: String,
+  highlights: String,
+  category: String,
+  image: String,
   colorCategory: [
     {
-      color: color,
-      isOutOfStock: { type: Boolean, default: false },
-      image: {
-        public_id: {
-          type: String,
-          required: false,
-        },
-        url: {
-          type: String,
-          required: false,
-        },
+      color: {
+        type: String,
+        enum: ["red", "yellow", "green", "blue", "white"],
       },
+      image: String,
+      isOutOfStock: { type: Boolean, default: false },
     },
   ],
   sizeCategory: [
     {
-      size: size,
+      size: {
+        type: String,
+        enum: ["XS", "S", "M", "L", "XL", "XXL", "4", "5", "6", "7", "8", "9"],
+      },
       isOutOfStock: { type: Boolean, default: false },
     },
   ],

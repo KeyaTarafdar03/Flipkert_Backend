@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import { Request, Response, NextFunction } from "express";
 
 dotenv.config();
 
@@ -28,3 +29,9 @@ export const passwordChecking = async (
   let result = await bcrypt.compare(password, hashedPassword);
   return result;
 };
+
+export const asyncHandler =
+  (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
