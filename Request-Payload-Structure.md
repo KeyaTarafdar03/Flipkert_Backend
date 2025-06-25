@@ -1,9 +1,9 @@
 # Backend Link
-- https://food-delivery-app-059m.onrender.com
+- https://flipkert-backend.onrender.com
 
 ## 1. Send OTP
 - **Request Type:** POST
-- **URL:** https://food-delivery-app-059m.onrender.com/user/otp-send
+- **URL:** https://flipkert-backend.onrender.com/user/otp-send
 - **Payload:**
 ```JSON
 {
@@ -13,7 +13,7 @@
 
 ## 2. Resend OTP
 - **Request Type:** POST
-- **URL:** https://food-delivery-app-059m.onrender.com/user/resend-otp
+- **URL:** https://flipkert-backend.onrender.com/user/resend-otp
 - **Payload:**
 ```JSON
 {
@@ -23,7 +23,7 @@
 
 ## 3. Verify OTP
 - **Request Type:** POST
-- **URL:** https://food-delivery-app-059m.onrender.com/user/verify-otp
+- **URL:** https://flipkert-backend.onrender.com/user/verify-otp
 - **Payload:**
 ```JSON
 {
@@ -34,4 +34,4 @@
 
 ## 4. Fetch All Categories
 - **Request Type:** GET
-- **URL:** https://food-delivery-app-059m.onrender.com/user/fetch-all-categories
+- **URL:** https://flipkert-backend.onrender.com/user/fetch-all-categories

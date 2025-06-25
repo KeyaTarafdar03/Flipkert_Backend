@@ -6,4 +6,11 @@ const categorySchema = new mongoose.Schema({
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 });
 
+categorySchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret.__v;
+    return ret;
+  },
+});
+
 export default mongoose.model("Category", categorySchema);

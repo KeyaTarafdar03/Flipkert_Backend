@@ -31,3 +31,11 @@ export const createCategory = async (req: Request, res: Response) => {
     return errorResponse_CatchBlock(res, error);
   }
 };
+
+export const addProduct = async (req: Request, res: Response) => {
+  try {
+    const {category} = req.body;
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
