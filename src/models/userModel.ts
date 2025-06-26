@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
       },
+      color: String,
+      size: String,
     },
   ],
   order: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
@@ -24,6 +26,13 @@ const userSchema = new mongoose.Schema({
 userSchema.set("toJSON", {
   transform: function (doc, ret) {
     delete ret.__v;
+
+    if (Array.isArray(ret.cart)) {
+      ret.cart = ret.cart.map((item) => {
+        const { _id, ...rest } = item;
+        return rest;
+      });
+    }
     return ret;
   },
 });

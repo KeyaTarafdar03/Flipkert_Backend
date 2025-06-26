@@ -4,6 +4,13 @@ export const errorResponse_BadRequest = (res: Response) => {
   res.status(400).json({ success: false, message: "Bad Request" });
 };
 
+export const errorResponse_BadRequest_WithMsg = (
+  res: Response,
+  message: string
+) => {
+  res.status(400).json({ success: false, message });
+};
+
 export const errorResponse_CatchBlock = (res: Response, err: any) => {
   const error = err as Error;
   res.status(500).json({

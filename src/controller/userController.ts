@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
 import {
   errorResponse_AlreadyExists,
+  errorResponse_BadRequest,
+  errorResponse_BadRequest_WithMsg,
   errorResponse_CatchBlock,
   errorResponse_NotFound,
+  errorResponse_Unauthorized,
 } from "../responseObject/errorResponse";
 import sgMail from "@sendgrid/mail";
 import {
@@ -13,6 +16,9 @@ import userModel from "../models/userModel";
 import { generateToken } from "../helper/helper";
 import categoryModel from "../models/categoryModel";
 import productModel from "../models/productModel";
+import { RequestType } from "../types/types";
+import mongoose from "mongoose";
+import { AuthenticatedRequest, Product, User } from "../types/interfaces";
 
 export const OTPSending = async (req: Request, res: Response) => {
   try {
@@ -90,6 +96,70 @@ export const verifyOTP = async (req: Request, res: Response) => {
   }
 };
 
+export const fetchUser = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return errorResponse_Unauthorized(res);
+    }
+
+    const user = await userModel
+      .findById(req.user._id)
+      .populate<{ cart: { product: Product }[] }>({
+        path: "cart.product",
+        model: "Product",
+      })
+      .lean()
+      .exec();
+
+    if (!user) {
+      return errorResponse_NotFound(res, "User Not Found!");
+    }
+
+    const userCopy: User = JSON.parse(JSON.stringify(user));
+
+    if ("__v" in userCopy) {
+      delete userCopy.__v;
+    }
+
+    if (Array.isArray(userCopy.cart)) {
+      userCopy.cart = userCopy.cart.map((cartItem) => {
+        const newItem = { ...cartItem };
+
+        if (
+          newItem.product &&
+          typeof newItem.product === "object" &&
+          !(newItem.product instanceof mongoose.Types.ObjectId)
+        ) {
+          const productCopy: Product = { ...newItem.product };
+
+          if (newItem.color && Array.isArray(productCopy.colorCategory)) {
+            productCopy.colorCategory = productCopy.colorCategory
+              .filter((colorObj) => colorObj.color === newItem.color)
+              .map(({ _id, ...rest }) => rest);
+          }
+
+          if (newItem.size && Array.isArray(productCopy.sizeCategory)) {
+            productCopy.sizeCategory = productCopy.sizeCategory
+              .filter((sizeObj) => sizeObj.size === newItem.size)
+              .map(({ _id, ...rest }) => rest);
+          }
+
+          if ("__v" in productCopy) {
+            delete productCopy.__v;
+          }
+
+          newItem.product = productCopy;
+        }
+        return newItem;
+      });
+    }
+
+    return successResponse_ok(res, "User Fetched", userCopy);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
 export const getAllCategory = async (req: Request, res: Response) => {
   try {
     let categories = await categoryModel.find();
@@ -110,6 +180,158 @@ export const getAllProducts = async (req: Request, res: Response) => {
     }
     const products = await productModel.find();
     return successResponse_ok(res, "All Products Fetched", products);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const addToCart = async (req: RequestType, res: Response) => {
+  try {
+    const user = req.user;
+    const { productId } = req.body;
+    const color = req.body.color || null;
+    const size = req.body.size || null;
+
+    const product = await productModel.findById(productId);
+    if (!product) {
+      return errorResponse_NotFound(res, "Product Not Found");
+    }
+
+    // Validate color requirements
+    if (product.colorCategory && product.colorCategory.length > 0) {
+      if (!color) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Color is required for this product"
+        );
+      }
+
+      const validColor = product.colorCategory.some((c) => c.color === color);
+      if (!validColor) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Invalid color for this product"
+        );
+      }
+    } else if (color) {
+      return errorResponse_BadRequest_WithMsg(
+        res,
+        "This product doesn't support color options"
+      );
+    }
+
+    if (product.sizeCategory && product.sizeCategory.length > 0) {
+      if (!size) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Size is required for this product"
+        );
+      }
+
+      const validSize = product.sizeCategory.some((s) => s.size === size);
+      if (!validSize) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Invalid size for this product"
+        );
+      }
+    } else if (size) {
+      return errorResponse_BadRequest_WithMsg(
+        res,
+        "This product doesn't support size options"
+      );
+    }
+
+    const existingCart = user.cart || [];
+    let found = false;
+
+    for (let item of existingCart) {
+      const sameProduct = item.product.toString() === productId;
+      const sameColor = color ? item.color === color : !item.color;
+      const sameSize = size ? item.size === size : !item.size;
+
+      if (sameProduct && sameColor && sameSize) {
+        item.count += 1;
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      user.cart.push({
+        product: productId,
+        color: color || undefined,
+        size: size || undefined,
+        count: 1,
+      });
+    }
+
+    await user.save();
+
+    return successResponse_ok(
+      res,
+      "Cart updated successfully",
+      user.toJSON().cart
+    );
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const removeFromCart = async (req: RequestType, res: Response) => {
+  try {
+    const user = req.user;
+    const { productId } = req.body;
+    const color = req.body.color || null;
+    const size = req.body.size || null;
+
+    const existingCart = user.cart || [];
+    let found = false;
+    let requiresAttributes = false;
+
+    for (let i = 0; i < existingCart.length; i++) {
+      const item = existingCart[i];
+      const sameProduct = item.product.toString() === productId;
+
+      if (sameProduct) {
+        const hasColor = item.color !== null && item.color !== undefined;
+        const hasSize = item.size !== null && item.size !== undefined;
+
+        if ((hasColor && color === null) || (hasSize && size === null)) {
+          requiresAttributes = true;
+        }
+      }
+
+      const sameColor = color ? item.color === color : !item.color;
+      const sameSize = size ? item.size === size : !item.size;
+
+      if (sameProduct && sameColor && sameSize) {
+        found = true;
+        if (item.count > 1) {
+          item.count -= 1;
+        } else {
+          existingCart.splice(i, 1);
+        }
+        break;
+      }
+    }
+
+    if (requiresAttributes) {
+      return errorResponse_BadRequest(res);
+    }
+
+    if (!found) {
+      return errorResponse_NotFound(res, "Product not found in cart");
+    }
+
+    user.cart = existingCart;
+    await user.save();
+
+    return successResponse_ok(
+      res,
+      "Item removed from cart",
+      user.toJSON().cart
+    );
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }
