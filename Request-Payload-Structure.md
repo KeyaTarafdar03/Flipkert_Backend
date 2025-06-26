@@ -35,3 +35,17 @@
 ## 4. Fetch All Categories
 - **Request Type:** GET
 - **URL:** https://flipkert-backend.onrender.com/user/fetch-all-categories
+
+## 5. Fetch All Products
+- **Request Type:** GET
+- **URL:** https://flipkert-backend.onrender.com/user/fetch-all-products
+
+## 6. Fetch All Products (Filter by Category)
+- **Request Type:** GET
+- **URL:** https://flipkert-backend.onrender.com/user/fetch-all-products
+- **Params:**
+```JSON
+{
+    "category":"Fashion",
+}
+```
