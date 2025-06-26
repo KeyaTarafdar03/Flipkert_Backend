@@ -12,6 +12,7 @@ import {
 import userModel from "../models/userModel";
 import { generateToken } from "../helper/helper";
 import categoryModel from "../models/categoryModel";
+import productModel from "../models/productModel";
 
 export const OTPSending = async (req: Request, res: Response) => {
   try {
@@ -94,6 +95,21 @@ export const getAllCategory = async (req: Request, res: Response) => {
     let categories = await categoryModel.find();
 
     return successResponse_ok(res, "All Category Fetched", categories);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const getAllProducts = async (req: Request, res: Response) => {
+  try {
+    const category = req.query.category;
+
+    if (category) {
+      const products = await productModel.find({ category });
+      return successResponse_ok(res, "All Products Fetched", products);
+    }
+    const products = await productModel.find();
+    return successResponse_ok(res, "All Products Fetched", products);
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }

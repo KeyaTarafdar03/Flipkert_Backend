@@ -12,6 +12,18 @@ const setFileToBase = (file: Express.Multer.File): string => {
   return `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
 };
 
+import streamifier from "streamifier";
+
+const streamUpload = (buffer: Buffer): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream((error, result) => {
+      if (result) resolve(result);
+      else reject(error);
+    });
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+};
+
 export const createCategory = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
@@ -38,34 +50,11 @@ export const createCategory = async (req: Request, res: Response) => {
 
 export const addProduct = async (req: Request, res: Response) => {
   try {
-    const { category, name, price, description, highlights, colors, sizes } = req.body;
+    const { category, name, price, description, highlights, colors, sizes } =
+      req.body;
 
     if (!name || !price || !description || !category) {
-      return res
-        .status(400)
-        .json({ message: "Missing required product fields" });
-    }
-
-    const uploadedMainImage = await cloudinary.uploader.upload(
-      (req.files as any).mainImage[0].path
-    );
-
-    let colorCategory = [];
-    if (colors && (req.files as any).colorImages) {
-      const colorList: string[] = JSON.parse(colors); // e.g., '["red", "green"]'
-      const colorImages = (req.files as any).colorImages;
-
-      for (let i = 0; i < colorList.length; i++) {
-        const color = colorList[i];
-        const colorImage = colorImages[i];
-
-        const uploadRes = await cloudinary.uploader.upload(colorImage.path);
-        colorCategory.push({
-          color,
-          image: uploadRes.secure_url,
-          isOutOfStock: false,
-        });
-      }
+      return errorResponse_BadRequest(res);
     }
 
     let sizeCategory: { size: string; isOutOfStock: boolean }[] = [];
@@ -77,27 +66,76 @@ export const addProduct = async (req: Request, res: Response) => {
       }));
     }
 
-    const newProduct = new productModel({
-      name,
-      price,
-      description,
-      highlights,
-      category,
-      image: uploadedMainImage.secure_url,
-      colorCategory,
-      sizeCategory,
-      isOutOfStock: false,
-    });
+    if (!colors) {
+      const files = req.files as Express.Multer.File[];
 
-    await newProduct.save();
+      if (!files || files.length === 0) {
+        return errorResponse_BadRequest(res);
+      }
 
-    return successResponse_created(
-      res,
-      "Product added successfully",
-      newProduct
-    );
+      const uploadedMainImage = await streamUpload(files[0].buffer);
+
+      const newProduct = new productModel({
+        name,
+        price,
+        description,
+        highlights,
+        category,
+        image: uploadedMainImage.secure_url,
+        sizeCategory,
+        isOutOfStock: false,
+      });
+
+      await newProduct.save();
+
+      return successResponse_created(
+        res,
+        "Product added successfully",
+        newProduct
+      );
+    } else {
+      let colorCategory = [];
+      if (colors && Array.isArray(req.files) && req.files.length > 0) {
+        const colorList: string[] = JSON.parse(colors);
+
+        const colorImages = req.files as Express.Multer.File[];
+
+        if (!colorImages || colorImages.length === 0) {
+          return errorResponse_BadRequest(res);
+        }
+
+        for (let i = 0; i < colorList.length; i++) {
+          const color = colorList[i];
+
+          const uploadRes = await streamUpload(colorImages[i].buffer);
+          colorCategory.push({
+            color,
+            image: uploadRes.secure_url,
+            isOutOfStock: false,
+          });
+        }
+      }
+
+      const newProduct = new productModel({
+        name,
+        price,
+        description,
+        highlights,
+        category,
+        colorCategory,
+        sizeCategory,
+        isOutOfStock: false,
+      });
+
+      await newProduct.save();
+
+      return successResponse_created(
+        res,
+        "Product added successfully",
+        newProduct
+      );
+    }
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }
 };
-
