@@ -133,3 +133,21 @@
     "size":"M"  (optional)
 }
 ```
+
+## 13. Update User Details
+- **Request Type:** POST
+- **URL:** https://flipkert-backend.onrender.com/user/user-details-update
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+- **Body:** (Send only those fields which you want to update, send the other fields as empty)
+```JSON
+{
+    "username":"Keya Tarafdar",
+    "phone":"9647336816",
+    "address":"Gocharan"
+}
+```

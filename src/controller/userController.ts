@@ -428,3 +428,37 @@ export const placeOrderSingleItem = async (req: RequestType, res: Response) => {
     return errorResponse_CatchBlock(res, error);
   }
 };
+
+export const updateUserDetails = async (req: RequestType, res: Response) => {
+  try {
+    const { username, phone, address } = req.body;
+    let user = req.user;
+
+    if (username?.trim()) {
+      user.username = username.trim();
+    }
+
+    if (phone?.trim()) {
+      user.phone = phone.trim();
+    }
+
+    if (address?.trim()) {
+      user.address = address.trim();
+    }
+
+    await user.save();
+    const updatedCart = await userCartFormater(user);
+    const updatedOrder = await userOrderFormater(user);
+    const newUser = {
+      ...user._doc,
+      cart: updatedCart,
+      order: updatedOrder,
+    };
+    delete newUser.__v;
+    delete newUser.otp;
+
+    return successResponse_ok(res, "User Details Updated", newUser);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};

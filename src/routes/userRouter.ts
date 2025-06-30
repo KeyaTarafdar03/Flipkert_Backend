@@ -10,6 +10,7 @@ import {
   placeOrderSingleItem,
   removeFromCart,
   resendOTP,
+  updateUserDetails,
   verifyOTP,
 } from "../controller/userController";
 import isLoggedIn from "../middlewares/isLoggedIn";
@@ -23,6 +24,7 @@ router.post("/otp-send", OTPSending);
 router.post("/resend-otp", resendOTP);
 router.post("/verify-otp", verifyOTP);
 router.get("/fetch-user", isLoggedIn, fetchUser);
+router.post("/user-details-update", isLoggedIn, updateUserDetails);
 
 router.get("/fetch-all-categories", getAllCategory);
 router.get("/fetch-all-products", getAllProducts);
