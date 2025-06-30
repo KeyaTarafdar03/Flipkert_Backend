@@ -1,7 +1,7 @@
 # Backend Link
 - https://flipkert-backend.onrender.com
 
-## 1. Send OTP
+## 1. Send OTP (For Signup)
 - **Request Type:** POST
 - **URL:** https://flipkert-backend.onrender.com/user/otp-send
 - **Payload:**
@@ -11,7 +11,7 @@
 }
 ```
 
-## 2. Resend OTP
+## 2. Resend OTP (For Login & Resend OTP)
 - **Request Type:** POST
 - **URL:** https://flipkert-backend.onrender.com/user/resend-otp
 - **Payload:**
