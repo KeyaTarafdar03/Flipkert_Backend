@@ -9,6 +9,7 @@ import {
 } from "../responseObject/errorResponse";
 import sgMail from "@sendgrid/mail";
 import {
+  successResponse_created,
   successResponse_ok,
   successResponse_ok_withToken,
 } from "../responseObject/successResponse";
@@ -220,7 +221,7 @@ export const addToCart = async (req: RequestType, res: Response) => {
     }
 
     if (!found) {
-      user.cart.push({
+      user.cart.unshift({
         product: productId,
         color: color || undefined,
         size: size || undefined,
@@ -331,12 +332,98 @@ export const placeOrderFromCart = async (req: RequestType, res: Response) => {
       createdAt: new Date(),
     });
 
-    user.order.push(order._id);
+    user.order.unshift(order._id);
     user.cart = [];
     await user.save();
 
     const formatedOrder = await userOrderFormater(user);
     return successResponse_ok(res, "Order Placed", formatedOrder);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const placeOrderSingleItem = async (req: RequestType, res: Response) => {
+  try {
+    const user = req.user;
+    const { productId } = req.body;
+    const color = req.body.color || null;
+    const size = req.body.size || null;
+
+    const product = await productModel.findById(productId);
+    if (!product) {
+      return errorResponse_NotFound(res, "Product Not Found");
+    }
+
+    if (product.colorCategory && product.colorCategory.length > 0) {
+      if (!color) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Color is required for this product"
+        );
+      }
+
+      const validColor = product.colorCategory.some((c) => c.color === color);
+      if (!validColor) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Invalid color for this product"
+        );
+      }
+    } else if (color) {
+      return errorResponse_BadRequest_WithMsg(
+        res,
+        "This product doesn't support color options"
+      );
+    }
+
+    if (product.sizeCategory && product.sizeCategory.length > 0) {
+      if (!size) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Size is required for this product"
+        );
+      }
+
+      const validSize = product.sizeCategory.some((s) => s.size === size);
+      if (!validSize) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Invalid size for this product"
+        );
+      }
+    } else if (size) {
+      return errorResponse_BadRequest_WithMsg(
+        res,
+        "This product doesn't support size options"
+      );
+    }
+
+    const orderPrduct = {
+      count: 1,
+      product: productId,
+      color,
+      size,
+    };
+    if (!orderPrduct.color) delete orderPrduct.color;
+    if (!orderPrduct.size) delete orderPrduct.size;
+
+    const order = await orderModel.create({
+      userId: user._id,
+      products: [orderPrduct],
+      totalAmount: product.price,
+      createdAt: new Date(),
+    });
+
+    user.order.unshift(order._id);
+    await user.save();
+
+    const fromatedOrder = await userOrderFormater(user);
+    return successResponse_created(
+      res,
+      "Order Placed successfully",
+      fromatedOrder
+    );
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }

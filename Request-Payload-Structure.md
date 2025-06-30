@@ -95,3 +95,41 @@
     "size":"M"  (optional)
 }
 ```
+
+## 10. Clear Cart
+- **Request Type:** GET
+- **URL:** https://flipkert-backend.onrender.com/user/clear-cart
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+
+## 11. Place Order From Cart
+- **Request Type:** GET
+- **URL:** https://flipkert-backend.onrender.com/user/place-order-from-cart
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+
+## 12. Place Single Product Order
+- **Request Type:** POST
+- **URL:** https://flipkert-backend.onrender.com/user/place-single-order
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+- **Body:**
+```JSON
+{
+    "productId":"685d32b13576391ddcc22f26",
+    "color":"purple",  (optional)
+    "size":"M"  (optional)
+}
+```

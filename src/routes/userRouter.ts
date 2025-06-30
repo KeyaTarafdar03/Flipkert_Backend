@@ -7,6 +7,7 @@ import {
   getAllProducts,
   OTPSending,
   placeOrderFromCart,
+  placeOrderSingleItem,
   removeFromCart,
   resendOTP,
   verifyOTP,
@@ -31,5 +32,6 @@ router.post("/remove-from-cart", isLoggedIn, removeFromCart);
 router.get("/clear-cart", isLoggedIn, clearCart);
 
 router.get("/place-order-from-cart", isLoggedIn, placeOrderFromCart);
+router.post("/place-single-order", isLoggedIn, placeOrderSingleItem);
 
 export default router;

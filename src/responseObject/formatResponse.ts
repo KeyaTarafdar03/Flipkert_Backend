@@ -25,6 +25,11 @@ export const userCartFormater = async (user: any) => {
         image: colorObj?.image || product.image,
         color: colorObj?.color,
         size: sizeObj?.size,
+        isOutOfStock: colorObj?.image
+          ? colorObj?.isOutOfStock
+          : sizeObj?.size
+          ? sizeObj?.isOutOfStock
+          : product.isOutOfStock,
       };
 
       if (!newProduct.color) delete newProduct.color;
@@ -77,7 +82,7 @@ export const userOrderFormater = async (user: any) => {
         if (!newProduct.color) delete newProduct.color;
         if (!newProduct.size) delete newProduct.size;
 
-        newProducts.push(newProduct);
+        newProducts.push({ count: product.count, product: newProduct });
       });
 
       const newOrder = {
