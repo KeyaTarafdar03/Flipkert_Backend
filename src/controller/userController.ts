@@ -19,6 +19,7 @@ import productModel from "../models/productModel";
 import { RequestType } from "../types/types";
 import mongoose from "mongoose";
 import { AuthenticatedRequest, Product, User } from "../types/interfaces";
+import { userCartFormater } from "../responseObject/formatResponse";
 
 export const OTPSending = async (req: Request, res: Response) => {
   try {
@@ -102,59 +103,17 @@ export const fetchUser = async (req: AuthenticatedRequest, res: Response) => {
       return errorResponse_Unauthorized(res);
     }
 
-    const user = await userModel
-      .findById(req.user._id)
-      .populate<{ cart: { product: Product }[] }>({
-        path: "cart.product",
-        model: "Product",
-      })
-      .lean()
-      .exec();
+    let user = req.user;
 
-    if (!user) {
-      return errorResponse_NotFound(res, "User Not Found!");
-    }
+    const updatedCart = await userCartFormater(user);
+    const newUser = {
+      _id: user._id,
+      email: user.email,
+      order: user.order,
+      cart: updatedCart,
+    };
 
-    const userCopy: User = JSON.parse(JSON.stringify(user));
-
-    if ("__v" in userCopy) {
-      delete userCopy.__v;
-    }
-
-    if (Array.isArray(userCopy.cart)) {
-      userCopy.cart = userCopy.cart.map((cartItem) => {
-        const newItem = { ...cartItem };
-
-        if (
-          newItem.product &&
-          typeof newItem.product === "object" &&
-          !(newItem.product instanceof mongoose.Types.ObjectId)
-        ) {
-          const productCopy: Product = { ...newItem.product };
-
-          if (newItem.color && Array.isArray(productCopy.colorCategory)) {
-            productCopy.colorCategory = productCopy.colorCategory
-              .filter((colorObj) => colorObj.color === newItem.color)
-              .map(({ _id, ...rest }) => rest);
-          }
-
-          if (newItem.size && Array.isArray(productCopy.sizeCategory)) {
-            productCopy.sizeCategory = productCopy.sizeCategory
-              .filter((sizeObj) => sizeObj.size === newItem.size)
-              .map(({ _id, ...rest }) => rest);
-          }
-
-          if ("__v" in productCopy) {
-            delete productCopy.__v;
-          }
-
-          newItem.product = productCopy;
-        }
-        return newItem;
-      });
-    }
-
-    return successResponse_ok(res, "User Fetched", userCopy);
+    return successResponse_ok(res, "User Fetched", newUser);
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }
@@ -197,7 +156,6 @@ export const addToCart = async (req: RequestType, res: Response) => {
       return errorResponse_NotFound(res, "Product Not Found");
     }
 
-    // Validate color requirements
     if (product.colorCategory && product.colorCategory.length > 0) {
       if (!color) {
         return errorResponse_BadRequest_WithMsg(
@@ -268,11 +226,8 @@ export const addToCart = async (req: RequestType, res: Response) => {
 
     await user.save();
 
-    return successResponse_ok(
-      res,
-      "Cart updated successfully",
-      user.toJSON().cart
-    );
+    const fromatedCart = await userCartFormater(user);
+    return successResponse_ok(res, "Cart updated successfully", fromatedCart);
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }
@@ -327,11 +282,9 @@ export const removeFromCart = async (req: RequestType, res: Response) => {
     user.cart = existingCart;
     await user.save();
 
-    return successResponse_ok(
-      res,
-      "Item removed from cart",
-      user.toJSON().cart
-    );
+    const formatedCart = await userCartFormater(user);
+
+    return successResponse_ok(res, "Item removed from cart", formatedCart);
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }
