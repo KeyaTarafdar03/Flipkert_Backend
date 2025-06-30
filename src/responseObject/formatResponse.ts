@@ -39,3 +39,59 @@ export const userCartFormater = async (user: any) => {
     return [];
   }
 };
+
+export const userOrderFormater = async (user: any) => {
+  try {
+    const updatedUser = await user.populate({
+      path: "order",
+      populate: { path: "products.product" },
+    });
+
+    let orders = updatedUser.order;
+
+    let newOrders: any[] = [];
+
+    orders.forEach((order: any) => {
+      let newProducts: any[] = [];
+      order.products.forEach((product: any) => {
+        const colorObj = product.product.colorCategory?.find(
+          (i: any) => i.color === product.color
+        );
+
+        const sizeObj = product.product.sizeCategory?.find(
+          (i: any) => i.size === product.size
+        );
+
+        const newProduct: any = {
+          _id: product.product._id,
+          name: product.product.name,
+          price: product.product.price,
+          description: product.product.description,
+          highlights: product.product.highlights,
+          category: product.product.category,
+          image: colorObj?.image || product.product.image,
+          color: colorObj?.color,
+          size: sizeObj?.size,
+        };
+
+        if (!newProduct.color) delete newProduct.color;
+        if (!newProduct.size) delete newProduct.size;
+
+        newProducts.push(newProduct);
+      });
+
+      const newOrder = {
+        _id: order._id,
+        totalAmount: order.totalAmount,
+        orderStatus: order.orderStatus,
+        createdAt: order.createdAt,
+        products: newProducts,
+      };
+      newOrders.push(newOrder);
+    });
+    return newOrders;
+  } catch (err: any) {
+    console.error("Error in userOrderFormater:", err.message);
+    return [];
+  }
+};

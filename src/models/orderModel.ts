@@ -1,18 +1,17 @@
 import mongoose from "mongoose";
 
 export enum orderStatus {
-  placed,
-  shipped,
-  outOfDelivery,
-  delivered,
-  cancled,
+  placed = "Placed",
+  shipped = "shipped",
+  outOfDelivery = "outOfDelivery",
+  delivered = "delivered",
+  cancled = "cancled",
 }
 
 const orderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   products: [
     {
-      _id: false,
       count: {
         type: Number,
       },
@@ -20,10 +19,8 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
       },
-      isCancled: {
-        type: Boolean,
-        default: false,
-      },
+      color: String,
+      size: String,
     },
   ],
   paymentId: String,
@@ -36,8 +33,6 @@ const orderSchema = new mongoose.Schema({
   createdAt: { type: Date },
   deliveredAt: { type: Date },
   cancledAt: { type: Date },
-  deliveryBoy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  otp: { type: Number, require: true },
 });
 
 export default mongoose.model("Order", orderSchema);

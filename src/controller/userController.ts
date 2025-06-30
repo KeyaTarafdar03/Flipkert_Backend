@@ -17,9 +17,12 @@ import { generateToken } from "../helper/helper";
 import categoryModel from "../models/categoryModel";
 import productModel from "../models/productModel";
 import { RequestType } from "../types/types";
-import mongoose from "mongoose";
-import { AuthenticatedRequest, Product, User } from "../types/interfaces";
-import { userCartFormater } from "../responseObject/formatResponse";
+import { AuthenticatedRequest } from "../types/interfaces";
+import {
+  userCartFormater,
+  userOrderFormater,
+} from "../responseObject/formatResponse";
+import orderModel from "../models/orderModel";
 
 export const OTPSending = async (req: Request, res: Response) => {
   try {
@@ -106,11 +109,12 @@ export const fetchUser = async (req: AuthenticatedRequest, res: Response) => {
     let user = req.user;
 
     const updatedCart = await userCartFormater(user);
+    const updatedOrder = await userOrderFormater(user);
     const newUser = {
       _id: user._id,
       email: user.email,
-      order: user.order,
       cart: updatedCart,
+      order: updatedOrder,
     };
 
     return successResponse_ok(res, "User Fetched", newUser);
@@ -285,6 +289,54 @@ export const removeFromCart = async (req: RequestType, res: Response) => {
     const formatedCart = await userCartFormater(user);
 
     return successResponse_ok(res, "Item removed from cart", formatedCart);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const clearCart = async (req: RequestType, res: Response) => {
+  try {
+    const user = req.user;
+    user.cart = [];
+    await user.save();
+
+    return successResponse_ok(
+      res,
+      "All Items from the Cart is deleted",
+      user.cart
+    );
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const placeOrderFromCart = async (req: RequestType, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user.cart || user.cart.length === 0) {
+      return errorResponse_NotFound(res, "Cart is Empty");
+    }
+    let totalAmount = 0;
+    await user.populate("cart.product");
+    user.cart.forEach((item: any) => {
+      const amount = item.count * item.product.price;
+      totalAmount += amount;
+    });
+
+    const order = await orderModel.create({
+      userId: user._id,
+      products: user.cart,
+      totalAmount,
+      createdAt: new Date(),
+    });
+
+    user.order.push(order._id);
+    user.cart = [];
+    await user.save();
+
+    const formatedOrder = await userOrderFormater(user);
+    return successResponse_ok(res, "Order Placed", formatedOrder);
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }

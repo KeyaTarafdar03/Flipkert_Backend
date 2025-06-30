@@ -1,10 +1,12 @@
 import express from "express";
 import {
   addToCart,
+  clearCart,
   fetchUser,
   getAllCategory,
   getAllProducts,
   OTPSending,
+  placeOrderFromCart,
   removeFromCart,
   resendOTP,
   verifyOTP,
@@ -26,5 +28,8 @@ router.get("/fetch-all-products", getAllProducts);
 
 router.post("/add-to-cart", isLoggedIn, addToCart);
 router.post("/remove-from-cart", isLoggedIn, removeFromCart);
+router.get("/clear-cart", isLoggedIn, clearCart);
+
+router.get("/place-order-from-cart", isLoggedIn, placeOrderFromCart);
 
 export default router;
