@@ -25,7 +25,10 @@ import {
 } from "../responseObject/formatResponse";
 import orderModel from "../models/orderModel";
 
-export const OTPSending = async (req: Request, res: Response) => {
+export const OTPSending = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { email } = req.body;
     const otp = Math.floor(1000 + Math.random() * 9000);
