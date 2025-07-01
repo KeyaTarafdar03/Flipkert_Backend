@@ -139,8 +139,15 @@ export const getAllProducts = async (req: Request, res: Response) => {
     const category = req.query.category;
 
     if (category) {
-      const products = await productModel.find({ category });
-      return successResponse_ok(res, "All Products Fetched", products);
+      const existingCategory = await categoryModel
+        .findOne({ name: category })
+        .populate("products");
+      const allProducts = existingCategory?.products;
+      Array.isArray(allProducts) &&
+        allProducts?.forEach((item: any) => {
+          delete item.__v;
+        });
+      return successResponse_ok(res, "All Products Fetched", allProducts);
     }
     const products = await productModel.find();
     return successResponse_ok(res, "All Products Fetched", products);

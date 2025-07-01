@@ -129,6 +129,11 @@ export const addProduct = async (req: Request, res: Response) => {
 
       await newProduct.save();
 
+      await categoryModel.findOneAndUpdate(
+        { name: category },
+        { $push: { products: newProduct._id } }
+      );
+
       return successResponse_created(
         res,
         "Product added successfully",
