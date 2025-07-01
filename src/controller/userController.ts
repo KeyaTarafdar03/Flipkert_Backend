@@ -147,7 +147,11 @@ export const getAllProducts = async (req: Request, res: Response) => {
         allProducts?.forEach((item: any) => {
           delete item.__v;
         });
-      return successResponse_ok(res, "All Products Fetched", allProducts);
+      return successResponse_ok(
+        res,
+        `All ${category} Products Fetched`,
+        allProducts
+      );
     }
     const products = await productModel.find();
     return successResponse_ok(res, "All Products Fetched", products);
