@@ -116,7 +116,17 @@ export const addProduct = async (req: Request, res: Response) => {
         }
       }
 
-      const newProduct = new productModel({
+      // const newProduct = new productModel({
+      //   name,
+      //   price,
+      //   description,
+      //   highlights,
+      //   category,
+      //   colorCategory,
+      //   sizeCategory,
+      //   isOutOfStock: false,
+      // });
+      const newProduct = await productModel.create({
         name,
         price,
         description,
@@ -126,8 +136,6 @@ export const addProduct = async (req: Request, res: Response) => {
         sizeCategory,
         isOutOfStock: false,
       });
-
-      await newProduct.save();
 
       await categoryModel.findOneAndUpdate(
         { name: category },
