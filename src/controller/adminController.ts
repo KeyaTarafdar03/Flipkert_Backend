@@ -75,7 +75,7 @@ export const addProduct = async (req: Request, res: Response) => {
 
       const uploadedMainImage = await streamUpload(files[0].buffer);
 
-      const newProduct = new productModel({
+      const newProduct = await productModel.create({
         name,
         price,
         description,
@@ -86,7 +86,10 @@ export const addProduct = async (req: Request, res: Response) => {
         isOutOfStock: false,
       });
 
-      await newProduct.save();
+      await categoryModel.findOneAndUpdate(
+        { name: category },
+        { $push: { products: newProduct._id } }
+      );
 
       return successResponse_created(
         res,
@@ -116,16 +119,6 @@ export const addProduct = async (req: Request, res: Response) => {
         }
       }
 
-      // const newProduct = new productModel({
-      //   name,
-      //   price,
-      //   description,
-      //   highlights,
-      //   category,
-      //   colorCategory,
-      //   sizeCategory,
-      //   isOutOfStock: false,
-      // });
       const newProduct = await productModel.create({
         name,
         price,
