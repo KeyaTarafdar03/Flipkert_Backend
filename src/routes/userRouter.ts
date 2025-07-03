@@ -12,6 +12,7 @@ import {
   resendOTP,
   updateUserDetails,
   verifyOTP,
+  fetchSingleProduct,
 } from "../controller/userController";
 import isLoggedIn from "../middlewares/isLoggedIn";
 const router = express.Router();
@@ -28,6 +29,7 @@ router.post("/user-details-update", isLoggedIn, updateUserDetails);
 
 router.get("/fetch-all-categories", getAllCategory);
 router.get("/fetch-all-products", getAllProducts);
+router.get("/fetch-single-product", fetchSingleProduct);
 
 router.post("/add-to-cart", isLoggedIn, addToCart);
 router.post("/remove-from-cart", isLoggedIn, removeFromCart);
