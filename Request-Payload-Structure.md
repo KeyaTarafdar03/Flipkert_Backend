@@ -151,3 +151,13 @@
     "address":"Gocharan"
 }
 ```
+
+## 14. Fetch Single Product
+- **Request Type:** POST
+- **URL:** https://flipkert-backend.onrender.com/user/fetch-single-product
+- **Body:**
+```JSON
+{
+    "productId":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```

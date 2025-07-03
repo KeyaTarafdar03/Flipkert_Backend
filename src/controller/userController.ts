@@ -484,7 +484,11 @@ export const fetchSingleProduct = async (req: RequestType, res: Response) => {
     if (!product) {
       return errorResponse_NotFound(res, "Product Not Found");
     }
-    return successResponse_ok(res, "Product Fetched Successfully", product);
+    return successResponse_ok(
+      res,
+      "Product Fetched Successfully",
+      product.toJSON()
+    );
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }
