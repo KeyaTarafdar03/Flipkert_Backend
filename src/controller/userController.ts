@@ -479,7 +479,7 @@ export const updateUserDetails = async (req: RequestType, res: Response) => {
 
 export const fetchSingleProduct = async (req: RequestType, res: Response) => {
   try {
-    const { productId } = req.body;
+    const { productId } = req.query;
     const product = await productModel.findOne({ _id: productId });
     if (!product) {
       return errorResponse_NotFound(res, "Product Not Found");

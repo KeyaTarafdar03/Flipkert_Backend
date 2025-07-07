@@ -155,7 +155,7 @@
 ## 14. Fetch Single Product
 - **Request Type:** GET
 - **URL:** https://flipkert-backend.onrender.com/user/fetch-single-product
-- **Body:**
+- **Params:**
 ```JSON
 {
     "productId":"6864ec017446193e9f71f164",
