@@ -153,7 +153,7 @@
 ```
 
 ## 14. Fetch Single Product
-- **Request Type:** POST
+- **Request Type:** GET
 - **URL:** https://flipkert-backend.onrender.com/user/fetch-single-product
 - **Body:**
 ```JSON
