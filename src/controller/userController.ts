@@ -119,6 +119,9 @@ export const fetchUser = async (req: AuthenticatedRequest, res: Response) => {
       email: user.email,
       cart: updatedCart,
       order: updatedOrder,
+      username: user.username,
+      phone: user.phone,
+      address: user.address,
     };
 
     return successResponse_ok(res, "User Fetched", newUser);
