@@ -161,3 +161,37 @@
     "productId":"6864ec017446193e9f71f164",
 }
 ```
+
+## 15. Add to Wishlist
+- **Request Type:** POST
+- **URL:** https://flipkert-backend.onrender.com/user/add-to-wishlist
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+- **Body:**
+```JSON
+{
+    "productId":"685d32b13576391ddcc22f26",
+    "color":"purple",  (optional)
+}
+```
+
+## 16. Remove from Wishlist
+- **Request Type:** POST
+- **URL:** https://flipkert-backend.onrender.com/user/remove-from-wishlist
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+- **Body:**
+```JSON
+{
+    "productId":"685d32b13576391ddcc22f26",
+    "color":"purple",  (optional)
+}
+```

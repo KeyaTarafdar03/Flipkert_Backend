@@ -20,15 +20,21 @@ const userSchema = new mongoose.Schema({
       size: String,
     },
   ],
+  wishlist: [
+    {
+      product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      color: String,
+    },
+  ],
   order: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
 });
 
 userSchema.set("toJSON", {
-  transform: function (doc, ret) {
+  transform: function (doc: any, ret: any) {
     delete ret.__v;
 
     if (Array.isArray(ret.cart)) {
-      ret.cart = ret.cart.map((item) => {
+      ret.cart = ret.cart.map((item: { [x: string]: any; _id: any }) => {
         const { _id, ...rest } = item;
         return rest;
       });

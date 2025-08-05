@@ -7,7 +7,7 @@ import {
   errorResponse_NotFound,
   errorResponse_Unauthorized,
 } from "../responseObject/errorResponse";
-import sgMail from "@sendgrid/mail";
+// import sgMail from "@sendgrid/mail";
 import {
   successResponse_created,
   successResponse_ok,
@@ -22,6 +22,7 @@ import { AuthenticatedRequest } from "../types/interfaces";
 import {
   userCartFormater,
   userOrderFormater,
+  userWishlistFormater,
 } from "../responseObject/formatResponse";
 import orderModel from "../models/orderModel";
 
@@ -114,11 +115,13 @@ export const fetchUser = async (req: AuthenticatedRequest, res: Response) => {
 
     const updatedCart = await userCartFormater(user);
     const updatedOrder = await userOrderFormater(user);
+    const updatedWishlist = await userWishlistFormater(user);
     const newUser = {
       _id: user._id,
       email: user.email,
       cart: updatedCart,
       order: updatedOrder,
+      wishlist: updatedWishlist,
       username: user.username,
       phone: user.phone,
       address: user.address,
@@ -491,6 +494,113 @@ export const fetchSingleProduct = async (req: RequestType, res: Response) => {
       res,
       "Product Fetched Successfully",
       product.toJSON()
+    );
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const addToWishlist = async (req: RequestType, res: Response) => {
+  try {
+    const { productId, color } = req.body;
+    const user = req.user;
+    const product = await productModel.findOne({ _id: productId });
+    if (!product) {
+      return errorResponse_NotFound(res, "Product Not Found");
+    }
+    if (product.colorCategory && product.colorCategory.length > 0) {
+      if (!color) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Color is required for this product"
+        );
+      }
+
+      const validColor = product.colorCategory.some((c) => c.color === color);
+      if (!validColor) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Invalid color for this product"
+        );
+      }
+    } else if (color) {
+      return errorResponse_BadRequest_WithMsg(
+        res,
+        "This product doesn't support color options"
+      );
+    }
+    const exists = user.wishlist.some(
+      (item: { product: any; color: string }) =>
+        item.product.toString() === productId && item.color === color
+    );
+    if (exists) {
+      return errorResponse_AlreadyExists(res, "Product already in wishlist");
+    } else {
+      user.wishlist.push({ product: productId, color });
+      await user.save();
+      const formattedWishlist = await userWishlistFormater(user);
+      return successResponse_ok(
+        res,
+        "Product added to wishlist",
+        formattedWishlist
+      );
+    }
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const removeFromWishlist = async (req: RequestType, res: Response) => {
+  try {
+    const { productId } = req.body;
+    const color = req.body.color || null;
+    const user = req.user;
+
+    const product = await productModel.findOne({ _id: productId });
+    if (!product) {
+      return errorResponse_NotFound(res, "Product Not Found");
+    }
+
+    if (product.colorCategory && product.colorCategory.length > 0) {
+      if (!color) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Color is required for this product"
+        );
+      }
+      const validColor = product.colorCategory.some((c) => c.color === color);
+      if (!validColor) {
+        return errorResponse_BadRequest_WithMsg(
+          res,
+          "Invalid color for this product"
+        );
+      }
+    } else if (color) {
+      return errorResponse_BadRequest_WithMsg(
+        res,
+        "This product doesn't support color options"
+      );
+    }
+
+    const index = user.wishlist.findIndex(
+      (item: { product: any; color?: string }) =>
+        item.product.toString() === productId &&
+        (product.colorCategory && product.colorCategory.length > 0
+          ? item.color === color
+          : !item.color)
+    );
+
+    if (index === -1) {
+      return errorResponse_NotFound(res, "Product not found in wishlist");
+    }
+
+    user.wishlist.splice(index, 1);
+    await user.save();
+    const formattedWishlist = await userWishlistFormater(user);
+    return successResponse_ok(
+      res,
+      "Product removed from wishlist",
+      formattedWishlist
     );
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
