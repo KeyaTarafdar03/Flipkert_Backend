@@ -195,3 +195,40 @@
     "color":"purple",  (optional)
 }
 ```
+
+## 17. Create Rezorpay Payment Order
+- **Request Type:** POST
+- **URL:** https://flipkert-backend.onrender.com/user/create-payment-order
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+- **Body:**
+```JSON
+{
+    "amount":100,
+    "currency":"INR",
+    "receipt":"receipt#1",
+    "notes": {}
+}
+```
+
+## 18. Verify Rezorpay Payment
+- **Request Type:** POST
+- **URL:** https://flipkert-backend.onrender.com/user/verify-payment
+- **Headers:**
+```JSON
+{
+    "authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtleWFAZ21haWwuY29tIiwiaWQiOiI2ODVhYjdjZjg2MmNlMTk1N2NkOWVkYWEiLCJpYXQiOjE3NTA5NDQwNTYsImV4cCI6MTc1MTAzMDQ1Nn0.3P4SbBM2i2oENbIknuoGcp2LvpoboZPtQr18PPGrrT4",
+}
+```
+- **Body:**
+```JSON
+{
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": ""
+}
+```

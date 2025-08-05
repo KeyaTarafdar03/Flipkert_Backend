@@ -15,6 +15,8 @@ import {
   fetchSingleProduct,
   addToWishlist,
   removeFromWishlist,
+  createRezorpayOrder,
+  verifyRezorpayPayment,
 } from "../controller/userController";
 import isLoggedIn from "../middlewares/isLoggedIn";
 const router = express.Router();
@@ -38,6 +40,9 @@ router.post("/remove-from-cart", isLoggedIn, removeFromCart);
 router.get("/clear-cart", isLoggedIn, clearCart);
 router.post("/add-to-wishlist", isLoggedIn, addToWishlist);
 router.post("/remove-from-wishlist", isLoggedIn, removeFromWishlist);
+
+router.post("/create-payment-order", isLoggedIn, createRezorpayOrder);
+router.post("/verify-payment", isLoggedIn, verifyRezorpayPayment);
 
 router.get("/place-order-from-cart", isLoggedIn, placeOrderFromCart);
 router.post("/place-single-order", isLoggedIn, placeOrderSingleItem);

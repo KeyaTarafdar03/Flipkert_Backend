@@ -25,6 +25,13 @@ import {
   userWishlistFormater,
 } from "../responseObject/formatResponse";
 import orderModel from "../models/orderModel";
+import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils";
+import Razorpay from "razorpay";
+
+const razorpay = new Razorpay({
+  key_id: process.env.REZORPAY_ID!,
+  key_secret: process.env.REZORPAY_KEY_SCERET!,
+});
 
 export const OTPSending = async (
   req: Request,
@@ -602,6 +609,49 @@ export const removeFromWishlist = async (req: RequestType, res: Response) => {
       "Product removed from wishlist",
       formattedWishlist
     );
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const createRezorpayOrder = async (req: RequestType, res: Response) => {
+  try {
+    const { amount, currency, receipt, notes } = req.body;
+
+    const option = {
+      amount: amount * 100,
+      currency,
+      receipt,
+      notes,
+    };
+    const order = await razorpay.orders.create(option);
+
+    return successResponse_ok(res, "Rezorpay order created", order);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};
+
+export const verifyRezorpayPayment = (req: RequestType, res: Response) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+    req.body;
+
+  const secret = process.env.REZORPAY_KEY_SCERET || "";
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+  try {
+    const isValidSignature = validateWebhookSignature(
+      body,
+      razorpay_signature,
+      secret
+    );
+    if (isValidSignature) {
+      return successResponse_ok(res, "Payment validation successfull", null);
+    } else {
+      res
+        .status(201)
+        .send({ success: false, message: "Payment validation failed" });
+    }
   } catch (error) {
     return errorResponse_CatchBlock(res, error);
   }
