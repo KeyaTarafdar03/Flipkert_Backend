@@ -17,6 +17,7 @@ import {
   removeFromWishlist,
   createRezorpayOrder,
   verifyRezorpayPayment,
+  searchProduct,
 } from "../controller/userController";
 import isLoggedIn from "../middlewares/isLoggedIn";
 const router = express.Router();
@@ -46,5 +47,7 @@ router.post("/verify-payment", isLoggedIn, verifyRezorpayPayment);
 
 router.get("/place-order-from-cart", isLoggedIn, placeOrderFromCart);
 router.post("/place-single-order", isLoggedIn, placeOrderSingleItem);
+
+router.get('/search-product', searchProduct);
 
 export default router;

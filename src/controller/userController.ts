@@ -656,3 +656,27 @@ export const verifyRezorpayPayment = (req: RequestType, res: Response) => {
     return errorResponse_CatchBlock(res, error);
   }
 };
+
+export const searchProduct = async (req: Request, res: Response) => {
+  try {
+    const { searchParameter } = req.query;
+    const searchStr =
+      typeof searchParameter === "string" ? searchParameter.trim() : "";
+
+    if (!searchStr) {
+      return errorResponse_BadRequest_WithMsg(
+        res,
+        "Search parameter is required"
+      );
+    }
+
+    const products = await productModel.find({});
+    const searchedProducts = products.filter((product) =>
+      product?.name?.toLowerCase().includes(searchStr.toLowerCase())
+    );
+
+    return successResponse_ok(res, "Products searched", searchedProducts);
+  } catch (error) {
+    return errorResponse_CatchBlock(res, error);
+  }
+};

@@ -232,3 +232,13 @@
     "razorpay_signature": ""
 }
 ```
+
+## 19. Search product
+- **Request Type:** GET
+- **URL:** https://flipkert-backend.onrender.com/user/search-product
+- **Params:**
+```JSON
+{
+    "searchParameter": "saree",
+}
+```
